@@ -6,6 +6,8 @@ import pydicom
 from pydicom.pixel_data_handlers.util import apply_voi_lut
 import os
 import epydoc
+import matplotlib as plt
+from matplotlib import pyplot
 
 
 # Config
