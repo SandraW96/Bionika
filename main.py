@@ -18,21 +18,24 @@ def convert_imgs2arr(dir_name, dicom=False) -> list:
     arr: list = []
     dir = glob.glob(dir_name + '/*')
     for filename in dir:
-        if dicom:
-            im = pydicom.read_file(filename, force=True)
-            # if voi_lut:
-            #     data = apply_voi_lut(dicom.pixel_array, dicom)
-            #sthelse = im.pixel_array
-        else:
-            im = np.array(cv2.imread(filename))
+        im = np.array(cv2.resize(cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2GRAY), (96, 96)))
         arr.append(im)
     return arr
 
 
-# for f in test_list[:10]:   # remove "[:10]" to convert all images
-#     ds = pydicom.read_file(inputdir + f) # read dicom image
-#     img = ds.pixel_array # get image array
+def adjustImgList(imglist) -> list:
+    for i in imglist:
+        for row in i:
+            for column in row:
+                column*=2
+                if column < 75:
+                    column = 0
+    return imglist
+
 
 # Main script
-# normal = convert_imgs2arr('NORMAL')
-pneumothorax = convert_imgs2arr('PNEUMOTHORAX', True)
+normal_list = convert_imgs2arr('NORMAL')
+pneumo_list = convert_imgs2arr('PNG', True)
+
+pneumo_list = adjustImgList(pneumo_list)
+normal_list = adjustImgList(normal_list)

@@ -15,6 +15,3 @@ for f in pneumo_list:
     ds = pydicom.read_file(pneumo_inputdir + f) # read dicom image
     img = ds.pixel_array # get image array
     cv2.imwrite(pneumo_outdir + f.replace('.dcm','.png'),img)
-
-
-
