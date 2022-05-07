@@ -27,9 +27,8 @@ def adjustImgList(imglist) -> list:
     for i in imglist:
         for row in i:
             for column in row:
-                column*=2
-                if column < 75:
-                    column = 0
+                if column > 150:
+                    column = 255
     return imglist
 
 
