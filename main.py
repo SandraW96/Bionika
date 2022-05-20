@@ -63,7 +63,7 @@ def getImgsArrs(source):
     for i in source:
         labels.append(all_labels[i])
         vals.append(all_imgs[i])
-    return vals, labels
+    return np.array(vals), np.array(labels)
 
 ## Train ##
 imgs_train, labels_train = getImgsArrs(ind_train)
@@ -84,8 +84,27 @@ model = Sequential([
         layers.Dense(64, activation='sigmoid'),
         layers.Dense(nOfClasses, activation='sigmoid')
 ])
-nOfEpochs = 100
+nOfEpochs = 3
 
 model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),metrics=['accuracy'])#tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
 #training our model
-# our_model = model.fit(imgs_train, labels_train, epochs = nOfEpochs,validation_split=0.1,verbose=1)
+our_model = model.fit(imgs_train, labels_train, epochs = nOfEpochs,validation_split=0.1,verbose=1)
+# eval
+eval = model.evaluate(imgs_test, labels_test)
+# plt.plot(our_model.history['accuracy'])
+# plt.plot(our_model.history['val_accuracy'])
+# plt.title('Model accuracy')
+# plt.ylabel('Accuracy')
+# plt.xlabel('Epoch')
+# plt.legend(['Train', 'Validation'], loc='upper left')
+# plt.show()
+# im_pred = model.predict(imgs_test)
+# print(im_pred)
+
+#Test_tonumpy= np.array(ind_test)
+
+#macierz pomyłek
+predict = model.predict(imgs_test, steps = 33)
+
+from sklearn.metrics import confusion_matrix
+print(confusion_matrix(labels_test, predict.argmax(axis=1)))
