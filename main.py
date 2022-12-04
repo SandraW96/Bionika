@@ -18,6 +18,7 @@ from keras.models import Sequential
 # import random
 # from keras.preprocessing.image import ImageDataGenerator
 # from tensorflow.keras.utils import to_categorical
+from PIL import Image as PILimg
 
 # Config
 
@@ -43,6 +44,7 @@ def convert_imgs2arr(dir_name, dicom=False) -> list:
     return arr
 
 
+
 # Main script
 normal_list = convert_imgs2arr('NORMAL')
 pneumo_list = convert_imgs2arr('PNG', True)
@@ -52,11 +54,18 @@ normal_labels = [0 for i in range(0, len(normal_list))]
 pneumo_labels = [1 for i in range(0, len(pneumo_list))]
 all_labels = np.concatenate((normal_labels, pneumo_labels), axis=0)
 
+im2 = PILimg.fromarray(normal_list[0])
+plt.pyplot.imshow(im2, cmap=plt.pyplot.get_cmap('gray'))
+plt.pyplot.show()
+im3 = PILimg.fromarray(pneumo_list[0])
+plt.pyplot.imshow(im3, cmap=plt.pyplot.get_cmap('gray'))
+plt.pyplot.show()
 labels = np.arange(0, len(all_imgs))
 for i in range(0, len(dataset)):
     dataset[i] = i
 ind_train, ind_test = model_selection.train_test_split(dataset, test_size=.3, random_state=0)
-print(ind_train)
+
+
 def getImgsArrs(source):
     labels = []
     vals = []
@@ -70,14 +79,15 @@ imgs_train, labels_train = getImgsArrs(ind_train)
 ## Test ##
 imgs_test, labels_test = getImgsArrs(ind_test)
 # network
+print(imgs_train[0].shape)
 nOfClasses = 2
 model = Sequential([
-        tf.keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(96,96,1)),
-        layers.Conv2D(16,3,padding='same', activation='relu'),
+        tf.keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(96, 96, 1)),
+        layers.Conv2D(16, 3, padding='same', activation='relu'),
         layers.MaxPool2D(),
-        layers.Conv2D(32,3,padding='same', activation='relu'),
+        layers.Conv2D(32, 3, padding='same', activation='relu'),
         layers.MaxPool2D(),
-        layers.Conv2D(64,3,padding='same', activation='relu'),
+        layers.Conv2D(64, 3, padding='same', activation='relu'),
         layers.MaxPool2D(),
         layers.Dropout(0.2),
         layers.Flatten(),
@@ -86,25 +96,26 @@ model = Sequential([
 ])
 nOfEpochs = 3
 
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),metrics=['accuracy'])#tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])#tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
 #training our model
-our_model = model.fit(imgs_train, labels_train, epochs = nOfEpochs,validation_split=0.1,verbose=1)
+our_model = model.fit(imgs_train, labels_train, epochs=nOfEpochs, validation_split=0.1, verbose=1)
 # eval
 eval = model.evaluate(imgs_test, labels_test)
-# plt.plot(our_model.history['accuracy'])
-# plt.plot(our_model.history['val_accuracy'])
-# plt.title('Model accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(['Train', 'Validation'], loc='upper left')
-# plt.show()
+plt.pyplot.plot(our_model.history['accuracy'])
+plt.pyplot.plot(our_model.history['val_accuracy'])
+plt.pyplot.title('Model accuracy')
+plt.pyplot.ylabel('Accuracy')
+plt.pyplot.xlabel('Epoch')
+plt.pyplot.legend(['Train', 'Validation'], loc='upper left')
+plt.pyplot.xlim(0, 3)
+plt.pyplot.show()
 # im_pred = model.predict(imgs_test)
 # print(im_pred)
 
 #Test_tonumpy= np.array(ind_test)
 
 #macierz pomyłek
-predict = model.predict(imgs_test, steps = 33)
+predict = model.predict(imgs_test, steps=33)
 
 from sklearn.metrics import confusion_matrix
 print(confusion_matrix(labels_test, predict.argmax(axis=1)))
